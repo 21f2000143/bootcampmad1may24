@@ -12,7 +12,7 @@ class Product(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     view_type = db.Column(db.String(100), nullable=False)
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    
+  
     def __init__(self, name, description, price, category_id, view_type, img_name, mgf_date, exp_date, quantity):
         self.name = name
         self.description = description
