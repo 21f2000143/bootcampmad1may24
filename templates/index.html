@@ -10,18 +10,212 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <style>
+        /* Custom CSS for the left sidebar */
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 200
+        }
+    </style>
 </head>
 
 <body>
-    <div class="card" style="width: 18rem;">
-        <img src="..." class="card-img-top" alt="...">
-        <div class="card-body">
-            <h5 class="card-title">Card title</h5>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's
-                content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
+    <div class="container d-flex justify-content-center mt-2" style="margin-bottom: 100px;">
+        <div class="row gap-2">
+            {% if items|length >0 %}
+            {% for item in items %}
+            <!-- card -->
+            {% if item.view_type=='card' %}
+            <div class="card shadow p-3 mb-5 bg-body-tertiary rounded" style="width: 18rem;">
+                <img src="{{url_for('static', filename=item.img_name)}}" class="card-img-top img-thumbnail" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">{{item.description}}</p>
+                    {% if item.quantity > 0 %}
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userLoginModal"
+                        class="btn btn-outline-success">Add to Cart</a>
+                    {% else %}
+                    <button class="btn btn-danger" disabled>Out of Stock</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="modal fade" id="productUpdateModal" tabindex="-1" aria-labelledby="productUpdateModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="productUpdateModalLabel">Update Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <form method="POST" action="{{url_for('add_product_update', id=item.id)}}" class="mt-4">
+                                    <div class="form-group">
+                                        <label for="name">Product Name:</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            value="{{item.name}}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description:</label>
+                                        <textarea class="form-control" id="description" name="description"
+                                            placeholder="{{item.description}}"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mgf_date">mgf date:</label>
+                                        <input type="date" class="form-control" id="mgf_date" name="mgf_date"
+                                            value="{{item.mgf_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exp_date">exp date:</label>
+                                        <input type="date" class="form-control" id="exp_date" name="exp_date"
+                                            value="{{item.exp_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price:</label>
+                                        <input type="number" class="form-control" id="price" name="price"
+                                            value="{{item.price}}" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="myfile">Select a imgae file:</label>
+                                        <input class="form-control" type="file" id="myfile" name="myfile"
+                                            value="{{item.img_name}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="view_type">View:</label>
+                                        <select class="form-control" id="view_type" name="view_type">
+                                            <option selected>{{item.view_type}}</option>
+                                            <option value="card">card</option>
+                                            <option value="wider_card">wider card</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id">Category:</label>
+                                        <select class="form-control" id="category_id" name="category_id">
+                                            {% for category in categories %}
+                                            <option value="{{category.id}}">{{category.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Product</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- category -->
+            {% elif item.view_type=='category' %}
+            <div class="card shadow p-3 mb-5 bg-body-tertiary rounded" style="width: 18rem;">
+                <div class="card-body">
+                    <!-- <img src="readymade.webp" class="d-block w-100 img-thumbnail" alt="..."> -->
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <a href="{{url_for('index', query_by_category=item.id)}}" class="btn btn-danger">Show more</a>
+                </div>
+            </div>
+            <!-- wider_card -->
+            {% elif item.view_type=='wider_card' %}
+            <div class="card w-50 shadow p-3 mb-5 bg-body-tertiary rounded">
+                <div class="card-body">
+                    <img src="{{url_for('static', filename=item.img_name)}}" class="card-img-top img-thumbnail"
+                        alt="...">
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">{{item.description}}</p>
+                    {% if item.quantity > 0 %}
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userLoginModal"
+                        class="btn btn-outline-success">Add to Cart</a>
+                    {% else %}
+                    <button class="btn btn-danger" disabled>Out of Stock</button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <h1>Nothing there</h1>
+            {% endif %}
         </div>
     </div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-bottom">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="col">
+                    <h4 style="font-family: 'Nabla', cursive;">GroceIt</h4>
+                </div>
+                <div class="col">
+                    <a href="{{url_for('index')}}">
+                        <span class="material-symbols-outlined">
+                            home
+                        </span>
+                    </a>
+                    <p class="fw-bold">Home</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#adminLoginModal">
+                        <span class="material-symbols-outlined">
+                            login
+                        </span>
+                    </a>
+                    <p class="fw-bold">Admin Login</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userLoginModal">
+                        <span class="material-symbols-outlined">
+                            login
+                        </span>
+                    </a>
+                    <p class="fw-bold">Login</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userRegisterModal">
+                        <span class="material-symbols-outlined">
+                            login
+                        </span>
+                    </a>
+                    <p class="fw-bold">Register</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#userLoginModal">
+                        <span class="material-symbols-outlined">
+                            shopping_bag
+                        </span>
+                    </a>
+                    <p class="fw-bold">Your cart</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <span class="material-symbols-outlined">
+                            search
+                        </span>
+                    </a>
+                    <p class="fw-bold">search</p>
+                </div>
+                <div class="col">
+                    {% if not query_by_category %}
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#searchByCategoryModal">
+                        <span class="material-symbols-outlined">
+                            category
+                        </span>
+                    </a>
+                    <p class="fw-bold">See Categories</p>
+                    {% else %}
+                    <p class="fw-bold">Only: {{query_by_category}}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
 </body>
 
 </html>
