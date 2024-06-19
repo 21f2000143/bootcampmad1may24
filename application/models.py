@@ -1,5 +1,7 @@
 from application.database import db
 from flask_login import UserMixin
+from werkzeug.security import check_password_hash
+
 
 
 class Product(db.Model): 
@@ -63,9 +65,7 @@ class User(db.Model, UserMixin): # UserMixin provides methods such as is_active,
         self.total_value = total_value
 
     def verify_password(self, password):
-        if self.password==password:
-            return True
-        else: return False
+        return check_password_hash(self.password, password)
 
 
 class Order(db.Model):

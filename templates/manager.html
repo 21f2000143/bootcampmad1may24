@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User UI</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nabla&display=swap" rel="stylesheet">
+    <style>
+        /* Custom CSS for the left sidebar */
+        .material-symbols-outlined {
+            font-variation-settings:
+                'FILL' 0,
+                'wght' 400,
+                'GRAD' 0,
+                'opsz' 200
+        }
+    </style>
+</head>
+
+<body>
+    <p>I am manager</p>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-bottom">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="col">
+                    <h4 style="font-family: 'Nabla', cursive;">GroceIt</h4>
+                </div>
+                <div class="col">
+                    <a href="{{url_for('dashboard_admin')}}">
+                        <span class="material-symbols-outlined">
+                            home
+                        </span>
+                    </a>
+                    <p class="fw-bold">Home</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#productCreateModal">
+                        <span class="material-symbols-outlined">
+                            add_circle
+                        </span>
+                    </a>
+                    <p class="fw-bold">Add Product</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#categoryCreateModal">
+                        <span class="material-symbols-outlined">
+                            add_circle
+                        </span>
+                    </a>
+                    <p class="fw-bold">Add Category</p>
+                </div>
+                <div class="col">
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#searchModal">
+                        <span class="material-symbols-outlined">
+                            search
+                        </span>
+                    </a>
+                    <p class="fw-bold">search</p>
+                </div>
+                <div class="col">
+                    {% if not query_by_category %}
+                    <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#searchByCategoryModal">
+                        <span class="material-symbols-outlined">
+                            category
+                        </span>
+                    </a>
+                    <p class="fw-bold">See Categories</p>
+                    {% else %}
+                    <p class="fw-bold">Only: {{query_by_category}}</p>
+                    {% endif %}
+                </div>
+                <div class="col">
+                    <a href="/logout">
+                        <span class="material-symbols-outlined">
+                            logout
+                        </span>
+                    </a>
+                    <p class="fw-bold">Logout</p>
+                </div>
+            </div>
+        </div>
+    </nav>
+</body>
+
+</html>
