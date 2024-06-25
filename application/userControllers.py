@@ -1,5 +1,5 @@
-from flask import current_app as app, render_template, request, redirect, url_for, flash
-from flask_login import login_required, current_user, login_user, logout_user
+from flask import current_app as app, request, flash, redirect, url_for, render_template
+from flask_login import current_user, login_required, login_user, logout_user
 from application.models import *
 import random
 from werkzeug.security import generate_password_hash
@@ -18,7 +18,8 @@ def register():
             flash('Username already exists', 'danger')
             return redirect(url_for('register'))
 
-        user = User(username=username, email=email, password=generate_password_hash(password), is_admin=is_admin, total_value=0)
+        user = User(username=username, email=email,
+                    password=generate_password_hash(password), is_admin=is_admin, total_value=0)
         db.session.add(user)
         db.session.commit()
         login_user(user)
@@ -33,7 +34,6 @@ def register():
             else:
                 flash('User Login successful', 'success')
                 return redirect(url_for('dashboard_user'))
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -73,11 +73,14 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html', user=current_user)
 
 @app.route('/dashboard/admin')
 @login_required
 def dashboard_admin():
-    print(current_user.is_admin, type(current_user.is_admin) )
     if current_user.is_admin==1:
         query_by_category = request.args.get('query_by_category') 
         query_by_word = request.args.get('query_by_word') 
@@ -108,7 +111,6 @@ def dashboard_admin():
         return render_template('manager.html', current_user=current_user, items=items, categories=categories)
     else:
         return "No permission"
-
 
 @app.route('/dashboard/user')
 @login_required
@@ -147,7 +149,6 @@ def dashboard_user():
     else:
         return "No permission"
 
-
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -182,4 +183,3 @@ def index():
     items = categories + products
     random.shuffle(items)
     return render_template('index.html', items=items, categories=categories)
-

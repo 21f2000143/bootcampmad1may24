@@ -25,7 +25,292 @@
 </head>
 
 <body>
-    <p>I am manager</p>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    {% if query_by_word %}
+    <h2>Search result for {{query_by_word}}</h2>
+    {% endif %}
+    <div class="container d-flex justify-content-center mt-2" style="margin-bottom: 100px;">
+        <div class="row gap-2">
+            {% if items|length >0 %}
+            {% for item in items %}
+            <!-- card -->
+            {% if item.view_type=='card' %}
+            <div class="card shadow p-3 mb-5 bg-body-tertiary rounded" style="width: 18rem;">
+                <img src="{{url_for('static', filename=item.img_name)}}" class="card-img-top img-thumbnail" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">{{item.description}}</p>
+                    <div class="d-flex">
+                        <a data-bs-toggle="modal" data-bs-target="#productUpdateModal"
+                            class="btn btn-warning">update</a>
+                        <a data-bs-toggle="modal" data-bs-target="#confirmModal" class="btn btn-danger">delete</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="confirmModalLabel">Deleting Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <p>Are you sure to delete {{item.name}}</p>
+                                <a href="{{url_for('add_product_delete', id=item.id)}}"
+                                    class="btn btn-danger">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="productUpdateModal" tabindex="-1" aria-labelledby="productUpdateModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="productUpdateModalLabel">Update Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <form method="POST" action="{{url_for('add_product_update', id=item.id)}}" class="mt-4">
+                                    <div class="form-group">
+                                        <label for="name">Product Name:</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            value="{{item.name}}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description:</label>
+                                        <textarea class="form-control" id="description" name="description"
+                                            placeholder="{{item.description}}"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mgf_date">mgf date:</label>
+                                        <input type="date" class="form-control" id="mgf_date" name="mgf_date"
+                                            value="{{item.mgf_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exp_date">exp date:</label>
+                                        <input type="date" class="form-control" id="exp_date" name="exp_date"
+                                            value="{{item.exp_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price:</label>
+                                        <input type="number" class="form-control" id="price" name="price"
+                                            value="{{item.price}}" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="quantity">quantity:</label>
+                                        <input type="number" class="form-control" id="quantity" name="quantity"
+                                            value="{{item.quantity}}" min="1" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="myfile">Select a imgae file:</label>
+                                        <input class="form-control" type="file" id="myfile" name="myfile"
+                                            value="{{item.img_name}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="view_type">View:</label>
+                                        <select class="form-control" id="view_type" name="view_type">
+                                            <option selected>{{item.view_type}}</option>
+                                            <option value="card">card</option>
+                                            <option value="wider_card">wider card</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id">Category:</label>
+                                        <select class="form-control" id="category_id" name="category_id">
+                                            {% for category in categories %}
+                                            <option value="{{category.id}}">{{category.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Product</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- category -->
+            {% elif item.view_type=='category' %}
+            <div class="card shadow p-3 mb-5 bg-body-tertiary rounded" style="width: 18rem;">
+                <div class="card-body">
+                    <!-- <img src="readymade.webp" class="d-block w-100 img-thumbnail" alt="..."> -->
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                    <div class="d-flex">
+                        <a data-bs-toggle="modal" data-bs-target="#categoryUpdateModal"
+                            class="btn btn-warning">update</a>
+                        <a data-bs-toggle="modal" data-bs-target="#confirmModal1" class="btn btn-danger">delete</a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmModal1" tabindex="-1" aria-labelledby="confirmModal1Label"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="confirmModal1Label">Deleting Category</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <p>Are you sure to delete {{item.name}}</p>
+                                <a href="{{url_for('add_category_delete', id=item.id)}}"
+                                    class="btn btn-danger">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="categoryUpdateModal" tabindex="-1" aria-labelledby="categoryUpdateModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="categoryUpdateModalLabel">Update Category</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <form method="POST" action="{{url_for('add_category_update', id=item.id)}}"
+                                    class="mt-4">
+                                    <div class="form-group">
+                                        <label for="name">Category Name:</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            value="{{ item.name }}" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Category</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- wider_card -->
+            {% elif item.view_type=='wider_card' %}
+            <div class="card w-50 shadow p-3 mb-5 bg-body-tertiary rounded">
+                <div class="card-body">
+                    <img src="{{url_for('static', filename=item.img_name)}}" class="card-img-top img-thumbnail"
+                        alt="...">
+                    <h5 class="card-title">{{item.name}}</h5>
+                    <p class="card-text">{{item.description}}</p>
+                    <div class="d-flex">
+                        <a data-bs-toggle="modal" data-bs-target="#productUpdateModal"
+                            class="btn btn-warning">update</a>
+                        <a data-bs-toggle="modal" data-bs-target="#confirmModal2" class="btn btn-danger">delete</a>
+
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="confirmModal2" tabindex="-1" aria-labelledby="confirmModal2Label"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="confirmModal2Label">Deleting Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <p>Are you sure to delete {{item.name}}</p>
+                                <a href="{{url_for('add_product_delete', id=item.id)}}"
+                                    class="btn btn-danger">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="productUpdateModal" tabindex="-1" aria-labelledby="productUpdateModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h1 class="modal-title fs-5" id="productUpdateModalLabel">Update Product</h1>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body d-flex justify-content-center">
+                            <div class="card-body">
+                                <form method="POST" action="{{url_for('add_product_update', id=item.id)}}" class="mt-4">
+                                    <div class="form-group">
+                                        <label for="name">Product Name:</label>
+                                        <input type="text" class="form-control" id="name" name="name"
+                                            value="{{item.name}}" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description:</label>
+                                        <textarea class="form-control" id="description" name="description"
+                                            placeholder="{{item.description}}"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="mgf_date">mgf date:</label>
+                                        <input type="date" class="form-control" id="mgf_date" name="mgf_date"
+                                            value="{{item.mgf_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="exp_date">exp date:</label>
+                                        <input type="date" class="form-control" id="exp_date" name="exp_date"
+                                            value="{{item.exp_date}}"></input>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price:</label>
+                                        <input type="number" class="form-control" id="price" name="price"
+                                            value="{{item.price}}" step="0.01" min="0" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="quantity">quantity:</label>
+                                        <input type="number" class="form-control" id="quantity" name="quantity"
+                                            value="{{item.quantity}}" min="1" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="myfile">Select a imgae file:</label>
+                                        <input class="form-control" type="file" id="myfile" name="myfile"
+                                            value="{{item.img_name}}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="view_type">View:</label>
+                                        <select class="form-control" id="view_type" name="view_type">
+                                            <option selected>{{item.view_type}}</option>
+                                            <option value="card">card</option>
+                                            <option value="wider_card">wider card</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id">Category:</label>
+                                        <select class="form-control" id="category_id" name="category_id">
+                                            {% for category in categories %}
+                                            <option value="{{category.id}}">{{category.name}}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Product</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% else %}
+            <h1>Nothing there</h1>
+            {% endif %}
+        </div>
+    </div>
     <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-bottom">
         <div class="container-fluid">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -92,6 +377,150 @@
             </div>
         </div>
     </nav>
+    <div class="row">
+        <!-- Modal -->
+        <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="searchModalLabel">Searching for</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <div class="card-body">
+                            <form method="GET" action="{{url_for('dashboard_admin')}}" class="mt-4">
+                                <div class="form-group">
+                                    <label for="name">Enter and click on the search button</label>
+                                    <input type="text" class="form-control" id="name" name="query_by_word"
+                                        placeholder="Enter category name" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">search</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="searchByCategoryModal" tabindex="-1" aria-labelledby="searchByCategoryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="searchByCategoryModalLabel">Select Category</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <div class="card-body">
+                            {% for category in categories %}
+                            <a href="{{url_for('dashboard_admin', query_by_category=category.id)}}"
+                                class="btn btn-outline-info" aria-current="true">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h5 class="mb-1">{{category.name}}</h5>
+                                    <small>3 days ago</small>
+                                </div>
+                                <p class="mb-1">Some placeholder content in a paragraph.</p>
+                                <small>And some small print.</small>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="categoryCreateModal" tabindex="-1" aria-labelledby="categoryCreateModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="categoryCreateModalLabel">Create Category</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <div class="card-body">
+                            <form method="POST" action="{{url_for('add_category')}}" class="mt-4">
+                                <div class="form-group">
+                                    <label for="name">Category Name:</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        placeholder="Enter category name" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create Category</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="productCreateModal" tabindex="-1" aria-labelledby="productCreateModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="productCreateModalLabel">Add Product</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body d-flex justify-content-center">
+                        <div class="card-body">
+                            <form method="POST" action="{{url_for('add_product')}}" class="mt-4">
+                                <div class="form-group">
+                                    <label for="name">Product Name:</label>
+                                    <input type="text" class="form-control" id="name" name="name"
+                                        placeholder="Enter product name" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="description">Description:</label>
+                                    <textarea class="form-control" id="description" name="description"
+                                        placeholder="Enter product description"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="mgf_date">mgf date:</label>
+                                    <input type="date" class="form-control" id="mgf_date" name="mgf_date"
+                                        placeholder="Enter product mgf_date"></input>
+                                </div>
+                                <div class="form-group">
+                                    <label for="exp_date">exp date:</label>
+                                    <input type="date" class="form-control" id="exp_date" name="exp_date"
+                                        placeholder="Enter product exp_date"></input>
+                                </div>
+                                <div class="form-group">
+                                    <label for="price">Price:</label>
+                                    <input type="number" class="form-control" id="price" name="price"
+                                        placeholder="Enter product price" step="0.01" min="0" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="quantity">quantity:</label>
+                                    <input type="number" class="form-control" id="quantity" name="quantity"
+                                        placeholder="Enter product price" min="1" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="myfile">Select a imgae file:</label>
+                                    <input class="form-control" type="file" id="myfile" name="myfile" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="view_type">View:</label>
+                                    <select class="form-control" id="view_type" name="view_type" required>
+                                        <option value="card">card</option>
+                                        <option value="wider_card">wider card</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="category_id">Category:</label>
+                                    <select class="form-control" id="category_id" name="category_id" required>
+                                        {% for category in categories %}
+                                        <option value="{{category.id}}">{{category.name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Create Product</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 </body>
 
 </html>
