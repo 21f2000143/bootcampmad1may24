@@ -9,6 +9,9 @@ from werkzeug.security import generate_password_hash
 def register():
     if request.method == 'POST':
         username = request.form['username']
+        if not username.isalpha():
+            flash('Username can only contain letters', 'danger')
+            return redirect(url_for('index'))
         email = request.form['email']
         password = request.form['password']
         is_admin = False  # Set this based on your registration logic
