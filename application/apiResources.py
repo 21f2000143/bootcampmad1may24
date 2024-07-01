@@ -25,7 +25,7 @@ product= {
     "name": fields.String,
     "img_name":fields.String,
     "mgf_date":fields.String,
-    "exp_date":fields.Integer,
+    "exp_date":fields.String,
     "description": fields.String,
     "price": fields.Float,
     "quantity":fields.Integer,
@@ -33,17 +33,13 @@ product= {
     "category_id":fields.Integer
 }
 
-productList={
-    "products":fields.List(fields.Nested(product)),
-}
 
 class productApi(Resource):
-    @marshal_with(productList)
     def get(self):
         try:
             products=Product.query.all()
             if products:
-                return products
+                return [marshal(pro, product) for pro in products]
             else:
                 raise NotFoundError(status_code=400)
         except requests.exceptions.RequestException as e:

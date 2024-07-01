@@ -1,14 +1,11 @@
-from application.orderControllers import *
-from application.userControllers import *
-from application.proControllers import *
-from application.catControllers import *
 from flask import Flask, render_template
 from flask_login import LoginManager
 import os
 from application.models import *
 from application.config import LocalDevelopmentConfig
-from werkzeug.security import generate_password_hash
 from flask_restful import Resource, Api
+from flask_security import Security, current_user, auth_required, hash_password, \
+     SQLAlchemySessionUserDatastore, permissions_accepted
 
 
 login_manager = LoginManager()
@@ -35,13 +32,10 @@ def create_app():
     login_manager.init_app(app)
     app.app_context().push()
     db.create_all()
-    admin = User.query.filter_by(is_admin=1).first()
-    if not admin:
-        admin = User(username='admin', email='admin@gmail.com',
-                     password=generate_password_hash('password'),
-                     is_admin=1, total_value=0)
-        db.session.add(admin)
-        db.session.commit()
+    app.teardown_appcontext(lambda exc: db.close())
+    user_datastore = SQLAlchemySessionUserDatastore(db, User, Role)
+    app.security = Security(app, user_datastore)
+    
     return app, api
 
 
@@ -53,12 +47,15 @@ def page_not_found(e):
     # note that we set the 404 status explicitly
     return render_template('404.html'), 404
 
-
-from application.apiResources import productApi
-
-
-api.add_resource(productApi, '/api/products', '/api/products/<int:product_id>')
 # importing all the controllers here
+from application.orderControllers import *
+from application.userControllers import *
+from application.proControllers import *
+from application.catControllers import *
+
+# adding api Resource
+from application.apiResources import productApi
+api.add_resource(productApi, '/api/products', '/api/products/<int:product_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)
